@@ -262,4 +262,4 @@ function createBracket4() {
     `;
     
     bracketContainer.innerHTML = bracketHTML;
-}
+} 
