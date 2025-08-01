@@ -199,3 +199,4 @@ function createBracket3() {
     
     bracketContainer.innerHTML = bracketHTML;
 }
+ 
