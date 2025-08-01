@@ -6,11 +6,13 @@
 </head>
 <body>
   <h1>텍스트를 표로 변환하기</h1>
-  <p>아래 입력창에 데이터를 붙여넣으세요. 각 줄은 새로운 행으로, 슬래시(/)나 공백으로 구분된 데이터는 새로운 열로 변환됩니다.</p>
+  <p>아래 입력창에 데이터를 붙여넣으세요.</p>
   
-  <textarea id="dataInput" rows="15" cols="60" placeholder="데이터를 여기에 붙여넣으세요. (예: 1. 우원석8 / 3 / 119 / 2.42689% / 8회)"></textarea>
+  <textarea id="dataInput" rows="15" cols="60" placeholder="데이터를 여기에 붙여넣으세요."></textarea>
   <br>
   <button onclick="convertToTable()">표로 변환하기</button>
+  <button onclick="toggleAllCheckboxes('참석')">참석 전체 체크/해제</button>
+  <button onclick="toggleAllCheckboxes('늦참')">늦참 전체 체크/해제</button>
   
   <div id="tableContainer"></div>
   
