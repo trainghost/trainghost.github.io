@@ -1,4 +1,5 @@
 function convertToTable() {
+  // (이전과 동일한 코드)
   const input = document.getElementById('dataInput').value;
   const tableContainer = document.getElementById('tableContainer');
   const lines = input.trim().split('\n');
@@ -24,11 +25,12 @@ function convertToTable() {
       const winRate = data[8];
       const participation = data[9];
       
+      // 체크박스에 고유한 클래스 추가
       html += `<tr>
                 <td>${rank}</td>
                 <td>${name}</td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
+                <td><input type="checkbox" class="참석-checkbox"></td>
+                <td><input type="checkbox" class="늦참-checkbox"></td>
                 <td>${win}</td>
                 <td>${draw}</td>
                 <td>${lose}</td>
@@ -42,4 +44,14 @@ function convertToTable() {
   
   html += '</tbody></table>';
   tableContainer.innerHTML = html;
+}
+
+// 새로운 함수를 추가합니다.
+function toggleAllCheckboxes(type) {
+  const checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+  checkboxes.forEach(cb => {
+    cb.checked = !allChecked;
+  });
 }
