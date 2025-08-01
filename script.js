@@ -53,7 +53,6 @@ function convertToTable() {
       const winRate = data[8];
       const participation = data[9];
       
-      // 순위 정보를 data-rank 속성으로 추가
       html += `<tr>
                 <td data-rank="${rank}">${rank}</td>
                 <td>${name}</td>
@@ -97,19 +96,16 @@ function createBracket() {
     })
     .filter(player => player.gender === '여');
 
-  if (checkedFemalePlayers.length >= 4) {
+  if (checkedFemalePlayers.length !== 4) {
     bracketContainer.innerHTML = '<p>여자 선수 4명을 참석으로 체크해야 대진표를 만들 수 있습니다.</p>';
     return;
   }
 
-  // 순위를 기준으로 선수들을 정렬 (순위는 숫자가 낮을수록 높음)
   checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
   
-  // 팀 구성
-  const teamA = [checkedFemalePlayers[0].name, checkedFemalePlayers[3].name]; // 순위 제일 높은 사람과 낮은 사람
-  const teamB = [checkedFemalePlayers[1].name, checkedFemalePlayers[2].name]; // 나머지 2명
+  const teamA = [checkedFemalePlayers[0].name, checkedFemalePlayers[3].name];
+  const teamB = [checkedFemalePlayers[1].name, checkedFemalePlayers[2].name];
 
-  // 대진표 HTML 생성
   const bracketHTML = `
     <h3>1번경기 (여자)</h3>
     <p><strong>Team A:</strong> ${teamA[0]} &amp; ${teamA[1]}</p>
@@ -118,4 +114,44 @@ function createBracket() {
   `;
   
   bracketContainer.innerHTML = bracketHTML;
+}
+
+// 2번 경기 대진표 생성 함수
+function createBracket2() {
+    const bracketContainer = document.getElementById('bracketContainer');
+    
+    // '참석'에 체크되었고 '늦참'에 체크되지 않은 선수들
+    const availablePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+        .filter(cb => !cb.closest('tr').querySelector('.늦참-checkbox').checked)
+        .map(cb => {
+            const name = cb.getAttribute('data-name');
+            const row = cb.closest('tr');
+            const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+            return { name, rank };
+        });
+
+    if (availablePlayers.length !== 4) {
+        const currentHTML = bracketContainer.innerHTML;
+        bracketContainer.innerHTML = `${currentHTML}<p>2번 경기를 만들려면 늦참을 제외한 참석 선수가 정확히 4명이어야 합니다.</p>`;
+        return;
+    }
+
+    // 순위대로 정렬
+    availablePlayers.sort((a, b) => a.rank - b.rank);
+
+    // 팀 구성: 순위 제일 높은 사람(1등)과 낮은 사람(4등)이 팀
+    const teamC = [availablePlayers[0].name, availablePlayers[3].name];
+    const teamD = [availablePlayers[1].name, availablePlayers[2].name];
+
+    // 대진표 HTML 추가
+    const bracketHTML = `
+        <hr>
+        <h3>2번경기 (남녀 통합)</h3>
+        <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
+        <p><strong>Team D:</strong> ${teamD[0]} &amp; ${teamD[1]}</p>
+        <p><strong>Match Up:</strong> Team C vs Team D</p>
+    `;
+    
+    const currentHTML = bracketContainer.innerHTML;
+    bracketContainer.innerHTML = currentHTML + bracketHTML;
 }
