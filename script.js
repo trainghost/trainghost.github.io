@@ -24,7 +24,7 @@ const playerData = {
   "김보경": { gender: "여" },
   "김경민": { gender: "남" },
   "모닝": { gender: "여" }, // 모딩 -> 모닝
-}; 
+};
 
 let bracket1Players = []; // 1번 경기에 참여한 선수를 저장할 전역 변수
 
@@ -124,7 +124,6 @@ function createBracket2() {
     const bracketContainer = document.getElementById('bracket2Container');
     bracketContainer.innerHTML = '';
     
-    // 1번 경기 선수, 늦참 선수 제외
     const availablePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
         .filter(cb => !cb.closest('tr').querySelector('.늦참-checkbox').checked)
         .map(cb => {
@@ -140,7 +139,6 @@ function createBracket2() {
         return;
     }
     
-    // 남은 선수들 중에서 무작위로 4명 선발
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -150,19 +148,53 @@ function createBracket2() {
     shuffleArray(availablePlayers);
     const selectedPlayers = availablePlayers.slice(0, 4);
 
-    // 순위대로 정렬
     selectedPlayers.sort((a, b) => a.rank - b.rank);
 
-    // 팀 구성: 순위 제일 높은 사람(1등)과 낮은 사람(4등)이 팀
     const teamC = [selectedPlayers[0].name, selectedPlayers[3].name];
     const teamD = [selectedPlayers[1].name, selectedPlayers[2].name];
 
-    // 대진표 HTML 추가
     const bracketHTML = `
         <h3>2번경기 (남녀 통합)</h3>
         <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
         <p><strong>Team D:</strong> ${teamD[0]} &amp; ${teamD[1]}</p>
         <p><strong>Match Up:</strong> Team C vs Team D</p>
+    `;
+    
+    bracketContainer.innerHTML = bracketHTML;
+}
+
+// 3번 경기 대진표 생성 함수
+function createBracket3() {
+    const bracketContainer = document.getElementById('bracket3Container');
+    bracketContainer.innerHTML = '';
+    
+    const checkedFemalePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+      .map(cb => {
+        const name = cb.getAttribute('data-name');
+        const row = cb.closest('tr');
+        const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+        return { name, rank, gender: playerData[name].gender };
+      })
+      .filter(player => player.gender === '여');
+
+    if (checkedFemalePlayers.length !== 4) {
+        bracketContainer.innerHTML = '<p>3번 경기를 만들려면 여자 선수 4명을 참석으로 체크해야 합니다.</p>';
+        return;
+    }
+    
+    checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
+
+    // 팀 구성: 순위 제일 높은 사람(1등)과 3번째로 높은 사람(3등)이 팀
+    const teamE = [checkedFemalePlayers[0].name, checkedFemalePlayers[2].name];
+    const teamF = [checkedFemalePlayers[1].name, checkedFemalePlayers[3].name];
+
+    // 대진표 HTML 추가
+    const bracketHTML = `
+        <hr>
+        <h3>3번경기 (여자)</h3>
+        <p><strong>Team E:</strong> ${teamE[0]} &amp; ${teamE[1]}</p>
+        <p><strong>Team F:</strong> ${teamF[0]} &amp; ${teamF[1]}</p>
+        <p><strong>Match Up:</strong> Team E vs Team F</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
