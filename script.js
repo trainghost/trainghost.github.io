@@ -26,6 +26,8 @@ const playerData = {
   "모닝": { gender: "여" }, // 모딩 -> 모닝
 };
 
+let bracket1Players = []; // 1번 경기에 참여한 선수를 저장할 전역 변수
+
 function convertToTable() {
   const input = document.getElementById('dataInput').value;
   const tableContainer = document.getElementById('tableContainer');
@@ -105,6 +107,8 @@ function createBracket1() {
   
   const teamA = [checkedFemalePlayers[0].name, checkedFemalePlayers[3].name];
   const teamB = [checkedFemalePlayers[1].name, checkedFemalePlayers[2].name];
+  
+  bracket1Players = checkedFemalePlayers.map(p => p.name);
 
   const bracketHTML = `
     <h3>1번경기 (여자)</h3>
@@ -120,6 +124,7 @@ function createBracket2() {
     const bracketContainer = document.getElementById('bracket2Container');
     bracketContainer.innerHTML = '';
     
+    // 1번 경기 선수, 늦참 선수 제외
     const availablePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
         .filter(cb => !cb.closest('tr').querySelector('.늦참-checkbox').checked)
         .map(cb => {
@@ -127,18 +132,32 @@ function createBracket2() {
             const row = cb.closest('tr');
             const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
             return { name, rank };
-        });
+        })
+        .filter(player => !bracket1Players.includes(player.name));
 
-    if (availablePlayers.length !== 4) {
-        bracketContainer.innerHTML = '<p>2번 경기를 만들려면 늦참을 제외한 참석 선수가 정확히 4명이어야 합니다.</p>';
+    if (availablePlayers.length < 4) {
+        bracketContainer.innerHTML = '<p>2번 경기를 만들 수 있는 선수가 4명 미만입니다.</p>';
         return;
     }
+    
+    // 남은 선수들 중에서 무작위로 4명 선발
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    shuffleArray(availablePlayers);
+    const selectedPlayers = availablePlayers.slice(0, 4);
 
-    availablePlayers.sort((a, b) => a.rank - b.rank);
+    // 순위대로 정렬
+    selectedPlayers.sort((a, b) => a.rank - b.rank);
 
-    const teamC = [availablePlayers[0].name, availablePlayers[3].name];
-    const teamD = [availablePlayers[1].name, availablePlayers[2].name];
+    // 팀 구성: 순위 제일 높은 사람(1등)과 낮은 사람(4등)이 팀
+    const teamC = [selectedPlayers[0].name, selectedPlayers[3].name];
+    const teamD = [selectedPlayers[1].name, selectedPlayers[2].name];
 
+    // 대진표 HTML 추가
     const bracketHTML = `
         <h3>2번경기 (남녀 통합)</h3>
         <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
