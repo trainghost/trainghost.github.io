@@ -2,7 +2,7 @@ const playerData = {
   "장다민": { gender: "여" },
   "양승하": { gender: "남" },
   "우원석": { gender: "남" },
-  "남상훈": { gender: "남" }, // 남상윤 -> 남상훈
+  "남상훈": { gender: "남" },
   "임예지": { gender: "여" },
   "이준희": { gender: "여" },
   "강민구": { gender: "남" },
@@ -23,10 +23,10 @@ const playerData = {
   "최하나": { gender: "여" },
   "김보경": { gender: "여" },
   "김경민": { gender: "남" },
-  "모닝": { gender: "여" }, // 모딩 -> 모닝
+  "모닝": { gender: "여" },
 };
 
-let bracket1Players = []; // 1번 경기에 참여한 선수를 저장할 전역 변수
+let bracket1Players = [];
 
 function convertToTable() {
   const input = document.getElementById('dataInput').value;
@@ -163,7 +163,6 @@ function createBracket2() {
     bracketContainer.innerHTML = bracketHTML;
 }
 
-// 3번 경기 대진표 생성 함수
 function createBracket3() {
     const bracketContainer = document.getElementById('bracket3Container');
     bracketContainer.innerHTML = '';
@@ -184,11 +183,9 @@ function createBracket3() {
     
     checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
 
-    // 팀 구성: 순위 제일 높은 사람(1등)과 3번째로 높은 사람(3등)이 팀
     const teamE = [checkedFemalePlayers[0].name, checkedFemalePlayers[2].name];
     const teamF = [checkedFemalePlayers[1].name, checkedFemalePlayers[3].name];
 
-    // 대진표 HTML 추가
     const bracketHTML = `
         <hr>
         <h3>3번경기 (여자)</h3>
@@ -199,4 +196,70 @@ function createBracket3() {
     
     bracketContainer.innerHTML = bracketHTML;
 }
- 
+
+// 4번 경기 대진표 생성 함수
+function createBracket4() {
+    const bracketContainer = document.getElementById('bracket4Container');
+    bracketContainer.innerHTML = '';
+    
+    // 늦참에 체크된 선수 2명 찾기
+    const latePlayers = Array.from(document.querySelectorAll('.늦참-checkbox:checked'))
+        .map(cb => {
+            const name = cb.getAttribute('data-name');
+            const row = cb.closest('tr');
+            const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+            return { name, rank };
+        });
+
+    if (latePlayers.length !== 2) {
+        bracketContainer.innerHTML = '<p>4번 경기를 만들려면 늦참 선수가 정확히 2명이어야 합니다.</p>';
+        return;
+    }
+
+    // 늦참과 여자 제외한 참석 선수들 찾기
+    const mainPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+        .filter(cb => !cb.closest('tr').querySelector('.늦참-checkbox').checked)
+        .map(cb => {
+            const name = cb.getAttribute('data-name');
+            const row = cb.closest('tr');
+            const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+            return { name, rank, gender: playerData[name].gender };
+        })
+        .filter(player => player.gender !== '여');
+        
+    if (mainPlayers.length < 2) {
+        bracketContainer.innerHTML = '<p>4번 경기를 만들려면 늦참을 제외한 남자 선수가 2명 이상이어야 합니다.</p>';
+        return;
+    }
+    
+    // 무작위로 2명 선발
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    shuffleArray(mainPlayers);
+    const selectedMainPlayers = mainPlayers.slice(0, 2);
+
+    // 총 4명의 선수 합치기
+    const allPlayers = [...selectedMainPlayers, ...latePlayers];
+
+    // 순위대로 정렬
+    allPlayers.sort((a, b) => a.rank - b.rank);
+
+    // 팀 구성
+    const teamG = [allPlayers[0].name, allPlayers[3].name];
+    const teamH = [allPlayers[1].name, allPlayers[2].name];
+
+    // 대진표 HTML 추가
+    const bracketHTML = `
+        <hr>
+        <h3>4번경기 (늦참 포함)</h3>
+        <p><strong>Team G:</strong> ${teamG[0]} &amp; ${teamG[1]}</p>
+        <p><strong>Team H:</strong> ${teamH[0]} &amp; ${teamH[1]}</p>
+        <p><strong>Match Up:</strong> Team G vs Team H</p>
+    `;
+    
+    bracketContainer.innerHTML = bracketHTML;
+}
