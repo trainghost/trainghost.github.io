@@ -97,7 +97,7 @@ function createBracket() {
     })
     .filter(player => player.gender === '여');
 
-  if (checkedFemalePlayers.length < 4) {
+  if (checkedFemalePlayers.length >= 4) {
     bracketContainer.innerHTML = '<p>여자 선수 4명을 참석으로 체크해야 대진표를 만들 수 있습니다.</p>';
     return;
   }
