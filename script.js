@@ -2,7 +2,7 @@ const playerData = {
   "장다민": { gender: "여" },
   "양승하": { gender: "남" },
   "우원석": { gender: "남" },
-  "남상윤": { gender: "남" },
+  "남상훈": { gender: "남" },
   "임예지": { gender: "여" },
   "이준희": { gender: "여" },
   "강민구": { gender: "남" },
@@ -23,7 +23,7 @@ const playerData = {
   "최하나": { gender: "여" },
   "김보경": { gender: "여" },
   "김경민": { gender: "남" },
-  "모딩": { gender: "여" },
+  "모닝": { gender: "여" },
 };
 
 function convertToTable() {
