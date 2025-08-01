@@ -24,7 +24,7 @@ const playerData = {
   "김보경": { gender: "여" },
   "김경민": { gender: "남" },
   "모닝": { gender: "여" }, // 모딩 -> 모닝
-};
+}; 
 
 let bracket1Players = []; // 1번 경기에 참여한 선수를 저장할 전역 변수
 
