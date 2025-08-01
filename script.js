@@ -27,8 +27,8 @@ const playerData = {
 };
 
 let bracket1Players = [];
-let bracket3Players = []; // 3번 경기 선수 저장
-let bracket4Players = []; // 4번 경기 선수 저장
+let bracket3Players = [];
+let bracket4Players = [];
 
 function convertToTable() {
   const input = document.getElementById('dataInput').value;
@@ -185,7 +185,6 @@ function createBracket3() {
     
     checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
     
-    // 3번 경기에 참여하는 선수들을 전역 변수에 저장
     bracket3Players = checkedFemalePlayers.map(p => p.name);
 
     const teamE = [checkedFemalePlayers[0].name, checkedFemalePlayers[2].name];
@@ -236,7 +235,6 @@ function createBracket4() {
     
     const selectedMainPlayers = mainPlayers.slice(0, 2);
     
-    // 4번 경기에 참여하는 선수들을 전역 변수에 저장
     bracket4Players = selectedMainPlayers.map(p => p.name).concat(latePlayers.map(p => p.name));
 
     const allPlayers = [...selectedMainPlayers, ...latePlayers];
@@ -264,7 +262,7 @@ function createBracket4() {
     bracketContainer.innerHTML = bracketHTML;
 }
 
-// 5번 경기 대진표 생성 함수
+// 5번 경기 대진표 생성 함수 (수정된 로직)
 function createBracket5() {
   const bracketContainer = document.getElementById('bracket5Container');
   bracketContainer.innerHTML = '';
@@ -283,39 +281,7 @@ function createBracket5() {
       return;
   }
   
-  // 3, 4번 경기에 포함되지 않은 '참석' 선수 2명 찾기
-  const availablePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
-    .filter(cb => !bracket3Players.includes(cb.getAttribute('data-name')) && !bracket4Players.includes(cb.getAttribute('data-name')))
-    .filter(cb => !cb.closest('tr').querySelector('.늦참-checkbox').checked)
-    .map(cb => {
-      const name = cb.getAttribute('data-name');
-      const row = cb.closest('tr');
-      const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
-      return { name, rank };
-    });
-
-  if (availablePlayers.length < 2) {
-      bracketContainer.innerHTML = '<p>5번 경기를 만들려면 3, 4번 경기에 포함되지 않은 참석 선수가 2명 이상이어야 합니다.</p>';
-      return;
-  }
-
-  // 무작위로 2명 선발
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-  shuffleArray(availablePlayers);
-  const selectedAvailablePlayers = availablePlayers.slice(0, 2);
-
-  // A, C를 뽑기 위한 총 4명의 선수
-  const groupAC = [...latePlayers, ...selectedAvailablePlayers];
-  groupAC.sort((a, b) => a.rank - b.rank);
-  const playerA = groupAC[0].name;
-  const playerC = groupAC[1].name;
-
-  // B, D를 뽑기 위한 여자 선수들
+  // 참석에 체크된 여자 선수 2명 찾기
   const checkedFemalePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
     .map(cb => {
       const name = cb.getAttribute('data-name');
@@ -329,11 +295,18 @@ function createBracket5() {
       bracketContainer.innerHTML = '<p>5번 경기를 만들려면 참석 여자 선수가 2명 이상이어야 합니다.</p>';
       return;
   }
-
-  checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
-  const playerD = checkedFemalePlayers[0].name;
-  const playerB = checkedFemalePlayers[1].name;
   
+  // 순위대로 정렬
+  latePlayers.sort((a, b) => a.rank - b.rank);
+  checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
+
+  // 팀 구성
+  const playerA = latePlayers[0].name; // 늦참 순위 제일 높은 사람
+  const playerB = checkedFemalePlayers[1].name; // 여자 순위 2번째로 높은 사람
+  
+  const playerC = latePlayers[1].name; // 늦참 순위 제일 낮은 사람
+  const playerD = checkedFemalePlayers[0].name; // 여자 순위 제일 높은 사람
+
   // 대진표 HTML 추가
   const bracketHTML = `
       <hr>
