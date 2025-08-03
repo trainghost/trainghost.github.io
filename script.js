@@ -1,12 +1,3 @@
-5번 경기 대진표를 더 간단한 규칙으로 다시 만들어 드릴게요. 늦참 선수 2명과 참석 여자 선수 2명을 각각 따로 선발한 후 팀을 구성하는 방식입니다.
-
------
-
-### `script.js` 수정
-
-이전의 복잡한 로직을 제거하고, 새로운 규칙에 맞게 `createBracket5()` 함수만 수정하면 됩니다. 아래 수정된 코드를 기존 `script.js` 파일에 덮어쓰세요.
-
-```javascript
 const playerData = {
   "장다민": { gender: "여" },
   "양승하": { gender: "남" },
@@ -125,7 +116,6 @@ function createBracket1() {
     <h3>1번경기 (여자)</h3>
     <p><strong>Team A:</strong> ${teamA[0]} &amp; ${teamA[1]}</p>
     <p><strong>Team B:</strong> ${teamB[0]} &amp; ${teamB[1]}</p>
-    <p><strong>Match Up:</strong> Team A vs Team B</p>
   `;
   
   bracketContainer.innerHTML = bracketHTML;
@@ -168,7 +158,6 @@ function createBracket2() {
         <h3>2번경기 (남녀 통합)</h3>
         <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
         <p><strong>Team D:</strong> ${teamD[0]} &amp; ${teamD[1]}</p>
-        <p><strong>Match Up:</strong> Team C vs Team D</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
@@ -204,7 +193,6 @@ function createBracket3() {
         <h3>3번경기 (여자)</h3>
         <p><strong>Team E:</strong> ${teamE[0]} &amp; ${teamE[1]}</p>
         <p><strong>Team F:</strong> ${teamF[0]} &amp; ${teamF[1]}</p>
-        <p><strong>Match Up:</strong> Team E vs Team F</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
@@ -265,18 +253,15 @@ function createBracket4() {
         <h3>4번경기 (늦참 포함)</h3>
         <p><strong>Team G:</strong> ${teamG[0]} &amp; ${teamG[1]}</p>
         <p><strong>Team H:</strong> ${teamH[0]} &amp; ${teamH[1]}</p>
-        <p><strong>Match Up:</strong> Team G vs Team H</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
 }
 
-// 5번 경기 대진표 생성 함수 (수정된 로직)
 function createBracket5() {
   const bracketContainer = document.getElementById('bracket5Container');
   bracketContainer.innerHTML = '';
   
-  // 늦참에 체크된 선수 2명 찾기
   const latePlayers = Array.from(document.querySelectorAll('.늦참-checkbox:checked'))
       .map(cb => {
           const name = cb.getAttribute('data-name');
@@ -290,7 +275,6 @@ function createBracket5() {
       return;
   }
   
-  // 참석에 체크된 여자 선수 2명 찾기
   const checkedFemalePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
     .map(cb => {
       const name = cb.getAttribute('data-name');
@@ -305,26 +289,21 @@ function createBracket5() {
       return;
   }
   
-  // 순위대로 정렬
   latePlayers.sort((a, b) => a.rank - b.rank);
   checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
 
-  // 팀 구성
-  const playerA = latePlayers[0].name; // 늦참 순위 제일 높은 사람
-  const playerB = checkedFemalePlayers[1].name; // 여자 순위 2번째로 높은 사람
+  const playerA = latePlayers[0].name;
+  const playerB = checkedFemalePlayers[1].name;
   
-  const playerC = latePlayers[1].name; // 늦참 순위 제일 낮은 사람
-  const playerD = checkedFemalePlayers[0].name; // 여자 순위 제일 높은 사람
+  const playerC = latePlayers[1].name;
+  const playerD = checkedFemalePlayers[0].name;
 
-  // 대진표 HTML 추가
   const bracketHTML = `
       <hr>
       <h3>5번경기</h3>
       <p><strong>Team A:</strong> ${playerA} &amp; ${playerB}</p>
       <p><strong>Team B:</strong> ${playerC} &amp; ${playerD}</p>
-      <p><strong>Match Up:</strong> Team A vs Team B</p>
   `;
   
   bracketContainer.innerHTML = bracketHTML;
 }
-```
