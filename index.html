@@ -6,17 +6,17 @@
 </head>
 <body>
   
-  <textarea id="dataInput" rows="15" cols="60"></textarea>
+  <textarea id="dataInput" rows="15" cols="60" placeholder="데이터를 여기에 붙여넣으세요."></textarea>
   <br>
-  <button onclick="convertToTable()"></button>
-  <button onclick="toggleAllCheckboxes('참석')"></button>
-  <button onclick="toggleAllCheckboxes('늦참')"></button>
+  <button onclick="convertToTable()">표로 변환하기</button>
+  <button onclick="toggleAllCheckboxes('참석')">참석 전체 체크/해제</button>
+  <button onclick="toggleAllCheckboxes('늦참')">늦참 전체 체크/해제</button>
   
-  <button onclick="createBracket1()"></button>
-  <button onclick="createBracket2()"></button>
-  <button onclick="createBracket3()"></button>
-  <button onclick="createBracket4()"></button>
-  <button onclick="createBracket5()"></button>
+  <button onclick="createBracket1()">1번경기 대진표 생성</button>
+  <button onclick="createBracket2()">2번경기 대진표 생성</button>
+  <button onclick="createBracket3()">3번경기 대진표 생성</button>
+  <button onclick="createBracket4()">4번경기 대진표 생성</button>
+  <button onclick="createBracket5()">5번경기 대진표 생성</button>
 
   <div id="tableContainer"></div>
   <div id="bracket1Container"></div> 
