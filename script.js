@@ -30,6 +30,7 @@ let bracket1Players = [];
 let bracket2Players = [];
 let bracket3Players = [];
 let bracket4Players = [];
+let waitingPlayersForBracket4 = []; // 4번 경기 대기 인원 저장
 
 function convertToTable() {
   const input = document.getElementById('dataInput').value;
@@ -277,16 +278,24 @@ function createBracket4() {
     
     bracketContainer.innerHTML = bracketHTML;
 
-    // 대기 인원 표시 로직 추가
     const allCheckedPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
       .map(cb => cb.getAttribute('data-name'));
     
     const allBracketPlayers = [...bracket3Players, ...bracket4Players];
-    const waitingPlayers = allCheckedPlayers.filter(name => !allBracketPlayers.includes(name));
-    
-    if (waitingPlayers.length > 0) {
+    const waitingPlayers = allCheckedPlayers
+      .filter(name => !allBracketPlayers.includes(name))
+      .map(name => {
+          const row = document.querySelector(`[data-name="${name}"]`).closest('tr');
+          const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+          return { name, rank };
+      });
+      
+    waitingPlayers.sort((a, b) => a.rank - b.rank);
+    waitingPlayersForBracket4 = waitingPlayers.map(p => p.name);
+
+    if (waitingPlayersForBracket4.length > 0) {
       const waitingHTML = `
-        <p><strong>대기 인원:</strong> ${waitingPlayers.join(', ')}</p>
+        <p><strong>대기 인원:</strong> ${waitingPlayersForBracket4.join(', ')}</p>
       `;
       bracketContainer.innerHTML += waitingHTML;
     }
@@ -337,6 +346,49 @@ function createBracket5() {
       <h3>5번경기</h3>
       <p><strong>Team A:</strong> ${playerA} &amp; ${playerB}</p>
       <p><strong>Team B:</strong> ${playerC} &amp; ${playerD}</p>
+  `;
+  
+  bracketContainer.innerHTML = bracketHTML;
+}
+
+function createBracket6() {
+  const bracketContainer = document.getElementById('bracket6Container');
+  bracketContainer.innerHTML = '';
+  
+  if (waitingPlayersForBracket4.length !== 2) {
+      bracketContainer.innerHTML = '<p>6번 경기를 만들려면 4번 경기 대기 인원이 정확히 2명이어야 합니다.</p>';
+      return;
+  }
+
+  const checkedFemalePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+    .map(cb => {
+      const name = cb.getAttribute('data-name');
+      const row = cb.closest('tr');
+      const rank = parseInt(row.querySelector('td[data-rank]').getAttribute('data-rank'));
+      return { name, rank, gender: playerData[name].gender };
+    })
+    .filter(player => player.gender === '여');
+
+  if (checkedFemalePlayers.length < 4) {
+      bracketContainer.innerHTML = '<p>6번 경기를 만들려면 참석 여자 선수가 4명 이상이어야 합니다.</p>';
+      return;
+  }
+  
+  checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
+  const femalePlayer3 = checkedFemalePlayers[2].name; // 여자 순위 3위
+  const femalePlayer4 = checkedFemalePlayers[3].name; // 여자 순위 4위
+
+  const waitingPlayer1 = waitingPlayersForBracket4[0]; // 대기 인원 중 순위 높은 사람
+  const waitingPlayer2 = waitingPlayersForBracket4[1]; // 대기 인원 중 순위 낮은 사람
+
+  const teamA = [waitingPlayer1, femalePlayer4];
+  const teamB = [waitingPlayer2, femalePlayer3];
+
+  const bracketHTML = `
+      <hr>
+      <h3>6번경기</h3>
+      <p><strong>Team A:</strong> ${teamA[0]} &amp; ${teamA[1]}</p>
+      <p><strong>Team B:</strong> ${teamB[0]} &amp; ${teamB[1]}</p>
   `;
   
   bracketContainer.innerHTML = bracketHTML;
