@@ -27,7 +27,7 @@ const playerData = {
 };
 
 let bracket1Players = [];
-let bracket2Players = []; // 2번 경기 선수 저장
+let bracket2Players = [];
 let bracket3Players = [];
 let bracket4Players = [];
 
@@ -154,7 +154,7 @@ function createBracket2() {
       }
       shuffleArray(availablePlayers);
       const selectedPlayers = availablePlayers.slice(0, 4);
-      bracket2Players = selectedPlayers.map(p => p.name); // 2번 경기 참여자 저장
+      bracket2Players = selectedPlayers.map(p => p.name);
       
       selectedPlayers.sort((a, b) => a.rank - b.rank);
 
@@ -169,7 +169,6 @@ function createBracket2() {
       bracketContainer.innerHTML = bracketHTML;
     }
 
-    // 대기 인원 표시 로직 추가
     const allCheckedPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
       .map(cb => cb.getAttribute('data-name'));
     
@@ -277,6 +276,20 @@ function createBracket4() {
     `;
     
     bracketContainer.innerHTML = bracketHTML;
+
+    // 대기 인원 표시 로직 추가
+    const allCheckedPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+      .map(cb => cb.getAttribute('data-name'));
+    
+    const allBracketPlayers = [...bracket3Players, ...bracket4Players];
+    const waitingPlayers = allCheckedPlayers.filter(name => !allBracketPlayers.includes(name));
+    
+    if (waitingPlayers.length > 0) {
+      const waitingHTML = `
+        <p><strong>대기 인원:</strong> ${waitingPlayers.join(', ')}</p>
+      `;
+      bracketContainer.innerHTML += waitingHTML;
+    }
 }
 
 function createBracket5() {
