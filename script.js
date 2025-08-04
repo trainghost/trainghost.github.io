@@ -30,7 +30,9 @@ let bracket1Players = [];
 let bracket2Players = [];
 let bracket3Players = [];
 let bracket4Players = [];
-let waitingPlayersForBracket4 = []; // 4번 경기 대기 인원 저장
+let bracket5Players = []; // 5번 경기 선수 저장
+let bracket6Players = []; // 6번 경기 선수 저장
+let waitingPlayersForBracket4 = [];
 
 function convertToTable() {
   const input = document.getElementById('dataInput').value;
@@ -340,6 +342,9 @@ function createBracket5() {
   
   const playerC = latePlayers[1].name;
   const playerD = checkedFemalePlayers[0].name;
+  
+  // 5번 경기 참여자 저장
+  bracket5Players = [playerA, playerB, playerC, playerD];
 
   const bracketHTML = `
       <hr>
@@ -375,14 +380,17 @@ function createBracket6() {
   }
   
   checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
-  const femalePlayer3 = checkedFemalePlayers[2].name; // 여자 순위 3위
-  const femalePlayer4 = checkedFemalePlayers[3].name; // 여자 순위 4위
+  const femalePlayer3 = checkedFemalePlayers[2].name;
+  const femalePlayer4 = checkedFemalePlayers[3].name;
 
-  const waitingPlayer1 = waitingPlayersForBracket4[0]; // 대기 인원 중 순위 높은 사람
-  const waitingPlayer2 = waitingPlayersForBracket4[1]; // 대기 인원 중 순위 낮은 사람
+  const waitingPlayer1 = waitingPlayersForBracket4[0];
+  const waitingPlayer2 = waitingPlayersForBracket4[1];
 
   const teamA = [waitingPlayer1, femalePlayer4];
   const teamB = [waitingPlayer2, femalePlayer3];
+  
+  // 6번 경기 참여자 저장
+  bracket6Players = [waitingPlayer1, femalePlayer4, waitingPlayer2, femalePlayer3];
 
   const bracketHTML = `
       <hr>
@@ -392,4 +400,18 @@ function createBracket6() {
   `;
   
   bracketContainer.innerHTML = bracketHTML;
+
+  // 대기 인원 표시 로직 추가
+  const allCheckedPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+    .map(cb => cb.getAttribute('data-name'));
+  
+  const allBracketPlayers = [...bracket5Players, ...bracket6Players];
+  const waitingPlayers = allCheckedPlayers.filter(name => !allBracketPlayers.includes(name));
+  
+  if (waitingPlayers.length > 0) {
+    const waitingHTML = `
+      <p><strong>대기 인원:</strong> ${waitingPlayers.join(', ')}</p>
+    `;
+    bracketContainer.innerHTML += waitingHTML;
+  }
 }
