@@ -27,6 +27,7 @@ const playerData = {
 };
 
 let bracket1Players = [];
+let bracket2Players = []; // 2번 경기 선수 저장
 let bracket3Players = [];
 let bracket4Players = [];
 
@@ -41,11 +42,13 @@ function convertToTable() {
   }
   
   let html = '<table><thead><tr><th>순위</th><th>이름</th><th>성별</th><th>참석</th><th>늦참</th><th>승</th><th>무</th><th>패</th><th>승점 (전체/평균)</th><th>득실</th><th>승률</th><th>참가 횟수</th></tr></thead><tbody>';
+  let hasValidData = false;
   
   lines.forEach(line => {
     const data = line.trim().split(/\s*\/\s*|\s+/);
     
     if (data.length >= 8) {
+      hasValidData = true;
       const rank = data[0].replace('.', '');
       const name = data[1];
       const gender = playerData[name] ? playerData[name].gender : '알 수 없음';
@@ -75,7 +78,12 @@ function convertToTable() {
   });
   
   html += '</tbody></table>';
-  tableContainer.innerHTML = html;
+  
+  if (hasValidData) {
+    tableContainer.innerHTML = html;
+  } else {
+    tableContainer.innerHTML = '<p>데이터 형식이 올바르지 않습니다.</p>';
+  }
 }
 
 function toggleAllCheckboxes(type) {
@@ -116,7 +124,6 @@ function createBracket1() {
     <h3>1번경기 (여자)</h3>
     <p><strong>Team A:</strong> ${teamA[0]} &amp; ${teamA[1]}</p>
     <p><strong>Team B:</strong> ${teamB[0]} &amp; ${teamB[1]}</p>
-    <p><strong>Match Up:</strong> Team A vs Team B</p>
   `;
   
   bracketContainer.innerHTML = bracketHTML;
@@ -138,31 +145,43 @@ function createBracket2() {
 
     if (availablePlayers.length < 4) {
         bracketContainer.innerHTML = '<p>2번 경기를 만들 수 있는 선수가 4명 미만입니다.</p>';
-        return;
-    }
-    
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    } else {
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
       }
+      shuffleArray(availablePlayers);
+      const selectedPlayers = availablePlayers.slice(0, 4);
+      bracket2Players = selectedPlayers.map(p => p.name); // 2번 경기 참여자 저장
+      
+      selectedPlayers.sort((a, b) => a.rank - b.rank);
+
+      const teamC = [selectedPlayers[0].name, selectedPlayers[3].name];
+      const teamD = [selectedPlayers[1].name, selectedPlayers[2].name];
+
+      const bracketHTML = `
+          <h3>2번경기 (남녀 통합)</h3>
+          <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
+          <p><strong>Team D:</strong> ${teamD[0]} &amp; ${teamD[1]}</p>
+      `;
+      bracketContainer.innerHTML = bracketHTML;
     }
-    shuffleArray(availablePlayers);
-    const selectedPlayers = availablePlayers.slice(0, 4);
 
-    selectedPlayers.sort((a, b) => a.rank - b.rank);
-
-    const teamC = [selectedPlayers[0].name, selectedPlayers[3].name];
-    const teamD = [selectedPlayers[1].name, selectedPlayers[2].name];
-
-    const bracketHTML = `
-        <h3>2번경기 (남녀 통합)</h3>
-        <p><strong>Team C:</strong> ${teamC[0]} &amp; ${teamC[1]}</p>
-        <p><strong>Team D:</strong> ${teamD[0]} &amp; ${teamD[1]}</p>
-        <p><strong>Match Up:</strong> Team C vs Team D</p>
-    `;
+    // 대기 인원 표시 로직 추가
+    const allCheckedPlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
+      .map(cb => cb.getAttribute('data-name'));
     
-    bracketContainer.innerHTML = bracketHTML;
+    const allBracketPlayers = [...bracket1Players, ...bracket2Players];
+    const waitingPlayers = allCheckedPlayers.filter(name => !allBracketPlayers.includes(name));
+    
+    if (waitingPlayers.length > 0) {
+      const waitingHTML = `
+        <p><strong>대기 인원:</strong> ${waitingPlayers.join(', ')}</p>
+      `;
+      bracketContainer.innerHTML += waitingHTML;
+    }
 }
 
 function createBracket3() {
@@ -195,7 +214,6 @@ function createBracket3() {
         <h3>3번경기 (여자)</h3>
         <p><strong>Team E:</strong> ${teamE[0]} &amp; ${teamE[1]}</p>
         <p><strong>Team F:</strong> ${teamF[0]} &amp; ${teamF[1]}</p>
-        <p><strong>Match Up:</strong> Team E vs Team F</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
@@ -256,18 +274,15 @@ function createBracket4() {
         <h3>4번경기 (늦참 포함)</h3>
         <p><strong>Team G:</strong> ${teamG[0]} &amp; ${teamG[1]}</p>
         <p><strong>Team H:</strong> ${teamH[0]} &amp; ${teamH[1]}</p>
-        <p><strong>Match Up:</strong> Team G vs Team H</p>
     `;
     
     bracketContainer.innerHTML = bracketHTML;
 }
 
-// 5번 경기 대진표 생성 함수 (수정된 로직)
 function createBracket5() {
   const bracketContainer = document.getElementById('bracket5Container');
   bracketContainer.innerHTML = '';
   
-  // 늦참에 체크된 선수 2명 찾기
   const latePlayers = Array.from(document.querySelectorAll('.늦참-checkbox:checked'))
       .map(cb => {
           const name = cb.getAttribute('data-name');
@@ -281,7 +296,6 @@ function createBracket5() {
       return;
   }
   
-  // 참석에 체크된 여자 선수 2명 찾기
   const checkedFemalePlayers = Array.from(document.querySelectorAll('.참석-checkbox:checked'))
     .map(cb => {
       const name = cb.getAttribute('data-name');
@@ -296,24 +310,20 @@ function createBracket5() {
       return;
   }
   
-  // 순위대로 정렬
   latePlayers.sort((a, b) => a.rank - b.rank);
   checkedFemalePlayers.sort((a, b) => a.rank - b.rank);
 
-  // 팀 구성
-  const playerA = latePlayers[0].name; // 늦참 순위 제일 높은 사람
-  const playerB = checkedFemalePlayers[1].name; // 여자 순위 2번째로 높은 사람
+  const playerA = latePlayers[0].name;
+  const playerB = checkedFemalePlayers[1].name;
   
-  const playerC = latePlayers[1].name; // 늦참 순위 제일 낮은 사람
-  const playerD = checkedFemalePlayers[0].name; // 여자 순위 제일 높은 사람
+  const playerC = latePlayers[1].name;
+  const playerD = checkedFemalePlayers[0].name;
 
-  // 대진표 HTML 추가
   const bracketHTML = `
       <hr>
       <h3>5번경기</h3>
       <p><strong>Team A:</strong> ${playerA} &amp; ${playerB}</p>
       <p><strong>Team B:</strong> ${playerC} &amp; ${playerD}</p>
-      <p><strong>Match Up:</strong> Team A vs Team B</p>
   `;
   
   bracketContainer.innerHTML = bracketHTML;
